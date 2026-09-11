@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laboratório dos Sons</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:Arial,sans-serif; background:#f4f7fb; color:#1f2937; min-height:100vh; }
+  .app { max-width:900px; margin:auto; padding:24px; }
+  header,.card { background:white; border-radius:20px; box-shadow:0 5px 20px #00000012; }
+  header { padding:22px; margin-bottom:20px; }
+  h1 { margin:0 0 6px; font-size:32px; }
+  .subtitle { color:#64748b; }
+  .card { padding:28px; }
+  .progress { height:10px; background:#e5e7eb; border-radius:99px; overflow:hidden; margin-bottom:24px; }
+  .progress>div { height:100%; background:#2563eb; width:0%; transition:.3s; }
+  .sound-word { text-align:center; margin:15px 0 25px; }
+  .label { color:#64748b; font-size:16px; }
+  .word { font-size:58px; font-weight:800; letter-spacing:2px; margin:8px 0 18px; }
+  button { border:0; border-radius:14px; padding:15px 20px; font-size:18px; font-weight:700; cursor:pointer; transition:.1s; }
+  button:active { transform:scale(.97); }
+  .listen { background:#111827; color:white; font-size:22px; }
+  .question { text-align:center; font-size:25px; font-weight:700; margin:25px 0; }
+  .options { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+  .option { background:#f8fafc; border:3px solid #e2e8f0; min-height:100px; font-size:27px; }
+  .option:hover { border-color:#94a3b8; }
+  .correct { border-color:#16a34a !important; background:#dcfce7 !important; }
+  .wrong { border-color:#dc2626 !important; background:#fee2e2 !important; }
+  .feedback { text-align:center; min-height:42px; margin-top:20px; font-size:21px; font-weight:700; }
+  .next { display:block; margin:10px auto 0; background:#2563eb; color:white; padding-left:30px; padding-right:30px; }
+  .score { display:flex; justify-content:space-between; margin-bottom:12px; color:#475569; font-weight:700; }
+  .hidden { display:none; }
+  .start,.result { text-align:center; }
+  .start p { font-size:19px; line-height:1.5; color:#475569; }
+  .start button,.result button { background:#2563eb; color:white; font-size:21px; }
+  .big-score { font-size:64px; font-weight:800; margin:15px; }
+  @media (max-width:600px) { .app{padding:12px;} h1{font-size:26px;} .word{font-size:44px;} .options{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>🔊 Laboratório dos Sons</h1>
+    <div class="subtitle">Treino de consciência fonológica e relação som–letra</div>
+  </header>
+  <section id="start" class="card start">
+    <h2>Vamos ouvir e comparar sons!</h2>
+    <p>Ouça a palavra e descubra qual das opções começa com o mesmo som da letra destacada.</p>
+    <p><strong>Exemplo:</strong> em <strong>GATO</strong>, o G tem o som /g/. Qual palavra começa com esse mesmo som?</p>
+    <button onclick="startGame()">▶ Começar</button>
+  </section>
+  <section id="game" class="card hidden">
+    <div class="score"><span id="counter"></span><span id="score"></span></div>
+    <div class="progress"><div id="bar"></div></div>
+    <div class="sound-word">
+      <div class="label">OUÇA A PALAVRA</div>
+      <div class="word" id="targetWord"></div>
+      <button class="listen" onclick="speakCurrent()">🔊 Ouvir</button>
+    </div>
+    <div class="question" id="question"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <button id="next" class="next hidden" onclick="nextQuestion()">Próxima ➜</button>
+  </section>
+  <section id="result" class="card result hidden">
+    <h2>🎉 Muito bem!</h2>
+    <div class="big-score" id="finalScore"></div>
+    <p id="finalMessage"></p>
+    <button onclick="startGame()">🔄 Jogar novamente</button>
+  </section>
+</div>
+<script>
+const questions = [
+  {word:'GATO',letter:'G',options:['GALO','GIRAFA','GELO','JANELA'],answer:'GALO'},
+  {word:'PATO',letter:'P',options:['PANELA','BOLA','FACA','MALA'],answer:'PANELA'},
+  {word:'MALA',letter:'M',options:['MACACO','SAPO','RATO','DADO'],answer:'MACACO'},
+  {word:'FACA',letter:'F',options:['FOCA','VACA','PATO','GATO'],answer:'FOCA'},
+  {word:'BOLA',letter:'B',options:['BONECA','PATO','MALA','FADA'],answer:'BONECA'},
+  {word:'TATU',letter:'T',options:['TAPETE','DADO','CAVALO','SAPO'],answer:'TAPETE'},
+  {word:'SAPO',letter:'S',options:['SACO','GATO','RATO','FACA'],answer:'SACO'},
+  {word:'VACA',letter:'V',options:['VASO','FADA','BOLA','MALA'],answer:'VASO'}
+];
+let current=0,points=0,answered=false;
+function startGame(){current=0;points=0;document.getElementById('start').classList.add('hidden');document.getElementById('result').classList.add('hidden');document.getElementById('game').classList.remove('hidden');showQuestion();}
+function showQuestion(){answered=false;const q=questions[current];document.getElementById('counter').textContent=`Questão ${current+1} de ${questions.length}`;document.getElementById('score').textContent=`⭐ ${points}`;document.getElementById('bar').style.width=`${(current/questions.length)*100}%`;document.getElementById('targetWord').textContent=q.word;document.getElementById('question').innerHTML=`Qual palavra começa com o mesmo som do <strong>${q.letter}</strong> de ${q.word}?`;document.getElementById('feedback').textContent='';document.getElementById('next').classList.add('hidden');const box=document.getElementById('options');box.innerHTML='';[...q.options].sort(()=>Math.random()-.5).forEach(word=>{const btn=document.createElement('button');btn.className='option';btn.textContent=word;btn.onclick=()=>checkAnswer(btn,word);box.appendChild(btn);});setTimeout(speakCurrent,350);}
+function speak(text){if(!('speechSynthesis' in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='pt-BR';u.rate=.82;u.pitch=1;speechSynthesis.speak(u);}
+function speakCurrent(){speak(questions[current].word);}
+function checkAnswer(btn,word){if(answered)return;answered=true;const q=questions[current];const all=document.querySelectorAll('.option');all.forEach(b=>b.disabled=true);if(word===q.answer){points++;btn.classList.add('correct');document.getElementById('feedback').textContent='✅ Muito bem! Você percebeu o som!';speak('Muito bem!');}else{btn.classList.add('wrong');all.forEach(b=>{if(b.textContent===q.answer)b.classList.add('correct');});document.getElementById('feedback').textContent=`🔎 A resposta era ${q.answer}. Vamos ouvir novamente!`;speak(q.answer);}document.getElementById('score').textContent=`⭐ ${points}`;document.getElementById('bar').style.width=`${((current+1)/questions.length)*100}%`;document.getElementById('next').classList.remove('hidden');}
+function nextQuestion(){current++;if(current>=questions.length)finish();else showQuestion();}
+function finish(){document.getElementById('game').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('finalScore').textContent=`${points} / ${questions.length}`;document.getElementById('finalMessage').textContent=points===questions.length?'Excelente! Você identificou todos os sons.':points>=6?'Muito bom! Você está percebendo bem os sons das palavras.':'Vamos praticar mais um pouco. Ouvir e comparar ajuda o cérebro a perceber os sons.';}
+</script>
+</body>
+</html>
