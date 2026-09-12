@@ -1,27 +1,305 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Laboratório dos Sons</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔊 Laboratório dos Sons</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f7fb;color:#1f2937;min-height:100vh}.app{max-width:900px;margin:auto;padding:24px}header,.card{background:white;border-radius:20px;box-shadow:0 5px 20px #00000012}header{padding:22px;margin-bottom:20px}h1{margin:0 0 6px;font-size:32px}.subtitle{color:#64748b}.card{padding:28px}.progress{height:10px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin-bottom:24px}.progress>div{height:100%;background:#2563eb;width:0%;transition:.3s}.sound-word{text-align:center;margin:15px 0 25px}.label{color:#64748b;font-size:16px}.word{font-size:58px;font-weight:800;letter-spacing:2px;margin:8px 0 18px}button{border:0;border-radius:14px;padding:15px 20px;font-size:18px;font-weight:700;cursor:pointer;transition:.1s}button:active{transform:scale(.97)}.listen{background:#111827;color:white;font-size:22px}.question{text-align:center;font-size:25px;font-weight:700;margin:25px 0}.options{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.option{background:#f8fafc;border:3px solid #e2e8f0;min-height:100px;font-size:27px}.option:hover{border-color:#94a3b8}.correct{border-color:#16a34a!important;background:#dcfce7!important}.wrong{border-color:#dc2626!important;background:#fee2e2!important}.feedback{text-align:center;min-height:42px;margin-top:20px;font-size:21px;font-weight:700}.next{display:block;margin:10px auto 0;background:#2563eb;color:white;padding-left:30px;padding-right:30px}.score{display:flex;justify-content:space-between;margin-bottom:12px;color:#475569;font-weight:700}.hidden{display:none}.start,.result{text-align:center}.start p{font-size:19px;line-height:1.5;color:#475569}.start button,.result button{background:#2563eb;color:white;font-size:21px}.big-score{font-size:64px;font-weight:800;margin:15px}@media(max-width:600px){.app{padding:12px}h1{font-size:26px}.word{font-size:44px}.options{grid-template-columns:1fr}}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Arial,sans-serif;background:#f4f7fb;color:#182230}
+  .wrap{max-width:850px;margin:0 auto;padding:24px}
+  .card{background:white;border-radius:18px;padding:28px;box-shadow:0 8px 30px rgba(0,0,0,.08);margin-bottom:18px}
+  h1{text-align:center;margin:0 0 8px}
+  .sub{text-align:center;color:#617080;margin-bottom:24px}
+  label{display:block;font-weight:bold;margin:14px 0 6px}
+  select,input[type=range]{width:100%}
+  select{padding:11px;border:1px solid #ccd5df;border-radius:10px;background:white}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  button{border:0;border-radius:11px;padding:12px 17px;font-size:16px;cursor:pointer}
+  .primary{background:#2457d6;color:white}
+  .secondary{background:#e9eef7;color:#182230}
+  .listen{font-size:22px;padding:12px 20px}
+  .status{font-size:14px;color:#607080;margin-top:8px}
+  .top{display:flex;justify-content:space-between;gap:15px;align-items:center}
+  .progress{height:9px;background:#e7ebf1;border-radius:20px;overflow:hidden;margin:16px 0 24px}
+  .bar{height:100%;background:#2457d6;width:0;transition:width .25s}
+  .target{text-align:center;font-size:46px;font-weight:800;letter-spacing:4px;margin:24px 0 18px}
+  .question{text-align:center;font-size:21px;line-height:1.45;margin-bottom:20px}
+  .options{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .option{background:#f0f4fa;font-size:21px;font-weight:bold;border:2px solid transparent}
+  .option:hover{border-color:#2457d6}
+  .option.correct{background:#dff5e4;border-color:#31914b}
+  .option.wrong{background:#fde2e2;border-color:#c83b3b}
+  .feedback{text-align:center;min-height:32px;font-weight:bold;margin:18px 0}
+  .next{display:block;margin:0 auto}
+  .hidden{display:none}
+  .score{font-weight:bold}
+  .range-row{display:flex;align-items:center;gap:12px}
+  .range-row input{flex:1}
+  .range-value{min-width:48px;text-align:right;font-weight:bold}
+  .small{font-size:13px;color:#697887}
+  @media(max-width:600px){.wrap{padding:14px}.card{padding:20px}.options{grid-template-columns:1fr}.target{font-size:38px}}
 </style>
 </head>
-<body><div class="app"><header><h1>🔊 Laboratório dos Sons</h1><div class="subtitle">Treino de consciência fonológica e relação som–letra</div></header>
-<section id="start" class="card start"><h2>Vamos ouvir e comparar sons!</h2><p>Ouça a palavra e descubra qual das opções começa com o mesmo som da letra destacada.</p><p><strong>Exemplo:</strong> em <strong>GATO</strong>, o G tem o som /g/. Qual palavra começa com esse mesmo som?</p><button onclick="startGame()">▶ Começar</button></section>
-<section id="game" class="card hidden"><div class="score"><span id="counter"></span><span id="score"></span></div><div class="progress"><div id="bar"></div></div><div class="sound-word"><div class="label">OUÇA A PALAVRA</div><div class="word" id="targetWord"></div><button class="listen" onclick="speakCurrent()">🔊 Ouvir</button></div><div class="question" id="question"></div><div class="options" id="options"></div><div class="feedback" id="feedback"></div><button id="next" class="next hidden" onclick="nextQuestion()">Próxima ➜</button></section>
-<section id="result" class="card result hidden"><h2>🎉 Muito bem!</h2><div class="big-score" id="finalScore"></div><p id="finalMessage"></p><button onclick="startGame()">🔄 Jogar novamente</button></section></div>
+<body>
+<div class="wrap">
+  <div class="card" id="setup">
+    <h1>🔊 Laboratório dos Sons</h1>
+    <div class="sub">Treino de consciência fonológica e relação som–letra</div>
+
+    <label for="voiceSelect">Voz</label>
+    <select id="voiceSelect">
+      <option>Carregando vozes...</option>
+    </select>
+    <div id="voiceStatus" class="status">Aguardando as vozes do navegador...</div>
+
+    <label for="rate">Velocidade</label>
+    <div class="range-row">
+      <input id="rate" type="range" min="0.75" max="1.05" step="0.05" value="0.90">
+      <span class="range-value" id="rateValue">0.90</span>
+    </div>
+
+    <div class="controls">
+      <button class="secondary" id="testBtn">🔊 Testar voz</button>
+      <button class="secondary" id="reloadBtn">↻ Recarregar vozes</button>
+      <button class="primary" id="startBtn">Começar atividade</button>
+    </div>
+    <p class="small">Teste primeiro a frase. O sistema não cancela uma fala a cada clique; a interrupção é feita apenas pelo botão de parar.</p>
+  </div>
+
+  <div class="card hidden" id="game">
+    <div class="top">
+      <span id="progressText">Questão 1 de 8</span>
+      <span class="score" id="scoreText">Pontos: 0</span>
+    </div>
+    <div class="progress"><div class="bar" id="bar"></div></div>
+
+    <div class="target" id="targetWord">GATO</div>
+
+    <div class="controls" style="justify-content:center">
+      <button class="primary listen" id="listenBtn">🔊 Ouvir palavra</button>
+      <button class="secondary" id="stopBtn">■ Parar</button>
+    </div>
+
+    <div class="question" id="question"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="primary next hidden" id="nextBtn">Próxima ▶</button>
+  </div>
+
+  <div class="card hidden" id="result">
+    <h1>🎉 Atividade concluída!</h1>
+    <p id="resultText" style="text-align:center;font-size:20px"></p>
+    <button class="primary next" id="restartBtn">Fazer novamente</button>
+  </div>
+</div>
+
 <script>
-const questions=[{word:'GATO',letter:'G',options:['GALO','GIRAFA','GELO','JANELA'],answer:'GALO'},{word:'PATO',letter:'P',options:['PANELA','BOLA','FACA','MALA'],answer:'PANELA'},{word:'MALA',letter:'M',options:['MACACO','SAPO','RATO','DADO'],answer:'MACACO'},{word:'FACA',letter:'F',options:['FOCA','VACA','PATO','GATO'],answer:'FOCA'},{word:'BOLA',letter:'B',options:['BONECA','PATO','MALA','FADA'],answer:'BONECA'},{word:'TATU',letter:'T',options:['TAPETE','DADO','CAVALO','SAPO'],answer:'TAPETE'},{word:'SAPO',letter:'S',options:['SACO','GATO','RATO','FACA'],answer:'SACO'},{word:'VACA',letter:'V',options:['VASO','FADA','BOLA','MALA'],answer:'VASO'}];
-let current=0,points=0,answered=false,voices=[];
-function loadVoices(){voices=speechSynthesis.getVoices();}
-if('speechSynthesis' in window){loadVoices();speechSynthesis.onvoiceschanged=loadVoices;}
-function getPortugueseVoice(){const pt=voices.filter(v=>/^pt-BR$/i.test(v.lang));return pt.find(v=>/Google|Microsoft|Luciana|Francisca|Daniel|Maria|Helena|Felipe/i.test(v.name))||pt[0]||voices.find(v=>/^pt(-|_)/i.test(v.lang));}
-function startGame(){current=0;points=0;document.getElementById('start').classList.add('hidden');document.getElementById('result').classList.add('hidden');document.getElementById('game').classList.remove('hidden');showQuestion();}
-function showQuestion(){answered=false;const q=questions[current];document.getElementById('counter').textContent=`Questão ${current+1} de ${questions.length}`;document.getElementById('score').textContent=`⭐ ${points}`;document.getElementById('bar').style.width=`${(current/questions.length)*100}%`;document.getElementById('targetWord').textContent=q.word;document.getElementById('question').innerHTML=`Qual palavra começa com o mesmo som do <strong>${q.letter}</strong> de ${q.word}?`;document.getElementById('feedback').textContent='';document.getElementById('next').classList.add('hidden');const box=document.getElementById('options');box.innerHTML='';[...q.options].sort(()=>Math.random()-.5).forEach(word=>{const btn=document.createElement('button');btn.className='option';btn.textContent=word;btn.onclick=()=>checkAnswer(btn,word);box.appendChild(btn);});setTimeout(speakCurrent,350);}
-function speak(text){if(!('speechSynthesis'in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='pt-BR';u.rate=.82;u.pitch=1;const voice=getPortugueseVoice();if(voice)u.voice=voice;speechSynthesis.speak(u);}
-function speakCurrent(){speak(questions[current].word);}
-function checkAnswer(btn,word){if(answered)return;answered=true;const q=questions[current];const all=document.querySelectorAll('.option');all.forEach(b=>b.disabled=true);if(word===q.answer){points++;btn.classList.add('correct');document.getElementById('feedback').textContent='✅ Muito bem! Você percebeu o som!';speak('Muito bem!');}else{btn.classList.add('wrong');all.forEach(b=>{if(b.textContent===q.answer)b.classList.add('correct')});document.getElementById('feedback').textContent=`🔎 A resposta era ${q.answer}. Vamos ouvir novamente!`;speak(q.answer)}document.getElementById('score').textContent=`⭐ ${points}`;document.getElementById('bar').style.width=`${((current+1)/questions.length)*100}%`;document.getElementById('next').classList.remove('hidden');}
-function nextQuestion(){current++;if(current>=questions.length)finish();else showQuestion();}
-function finish(){document.getElementById('game').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('finalScore').textContent=`${points} / ${questions.length}`;document.getElementById('finalMessage').textContent=points===questions.length?'Excelente! Você identificou todos os sons.':points>=6?'Muito bom! Você está percebendo bem os sons das palavras.':'Vamos praticar mais um pouco. Ouvir e comparar ajuda o cérebro a perceber os sons.';}
-</script></body></html>
+const questions = [
+  {word:"GATO",letter:"G",options:["GALO","GIRAFA","GELO","JANELA"],answer:"GALO"},
+  {word:"PATO",letter:"P",options:["PANELA","BOLA","FACA","MALA"],answer:"PANELA"},
+  {word:"MALA",letter:"M",options:["MACACO","SAPO","RATO","DADO"],answer:"MACACO"},
+  {word:"FACA",letter:"F",options:["FOCA","VACA","PATO","GATO"],answer:"FOCA"},
+  {word:"BOLA",letter:"B",options:["BONECA","PATO","MALA","FADA"],answer:"BONECA"},
+  {word:"TATU",letter:"T",options:["TAPETE","DADO","CAVALO","SAPO"],answer:"TAPETE"},
+  {word:"SAPO",letter:"S",options:["SACO","GATO","RATO","FACA"],answer:"SACO"},
+  {word:"VACA",letter:"V",options:["VASO","FADA","BOLA","MALA"],answer:"VASO"}
+];
+
+let current=0, points=0, answered=false, voices=[];
+const sel=document.getElementById("voiceSelect");
+const rate=document.getElementById("rate");
+const rateValue=document.getElementById("rateValue");
+const status=document.getElementById("voiceStatus");
+
+function scoreVoice(v){
+  let s=0;
+  if(/^pt-BR$/i.test(v.lang)) s+=100;
+  if(/Google|Microsoft/i.test(v.name)) s+=20;
+  if(/Natural|Neural|Online/i.test(v.name)) s+=10;
+  return s;
+}
+
+function loadVoices(){
+  if(!("speechSynthesis" in window)){
+    status.textContent="Seu navegador não oferece síntese de voz.";
+    return;
+  }
+  voices=speechSynthesis.getVoices();
+  const pt=voices.filter(v=>/^pt-BR$/i.test(v.lang));
+  const list=pt.length ? pt : voices.filter(v=>/^pt[-_]/i.test(v.lang));
+  list.sort((a,b)=>scoreVoice(b)-scoreVoice(a));
+
+  sel.innerHTML="";
+  list.forEach(v=>{
+    const o=document.createElement("option");
+    o.value=voices.indexOf(v);
+    o.textContent=v.name+" — "+v.lang;
+    sel.appendChild(o);
+  });
+
+  if(list.length){
+    sel.value=voices.indexOf(list[0]);
+    status.textContent=list.length+" voz(es) em português encontrada(s).";
+  }else{
+    const o=document.createElement("option");
+    o.value="";
+    o.textContent="Voz padrão do navegador";
+    sel.appendChild(o);
+    status.textContent="Nenhuma voz em português encontrada; usando a voz padrão.";
+  }
+}
+
+function selectedVoice(){
+  return voices[Number(sel.value)] || null;
+}
+
+/*
+  NOVO SISTEMA DE ÁUDIO
+  - Não chama cancel() dentro de speak().
+  - Se já houver uma fala, não inicia outra por cima.
+  - Pequeno atraso evita disparos imediatamente após troca de tela.
+  - cancel() fica reservado para stopSpeaking().
+*/
+let speechTimer=null;
+
+function speak(text){
+  if(!("speechSynthesis" in window)) return;
+
+  clearTimeout(speechTimer);
+
+  // Se algo já estiver falando, não interromper brutalmente.
+  if(speechSynthesis.speaking || speechSynthesis.pending) return;
+
+  speechTimer=setTimeout(()=>{
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang="pt-BR";
+    u.rate=Number(rate.value);
+    u.pitch=1;
+    u.volume=1;
+
+    const v=selectedVoice();
+    if(v){
+      u.voice=v;
+      u.lang=v.lang;
+    }
+
+    speechSynthesis.speak(u);
+  },80);
+}
+
+function stopSpeaking(){
+  clearTimeout(speechTimer);
+  if("speechSynthesis" in window) speechSynthesis.cancel();
+}
+
+function testVoice(){
+  stopSpeaking();
+  speechTimer=setTimeout(()=>{
+    const u=new SpeechSynthesisUtterance(
+      "Olá! Esta é a voz do Laboratório dos Sons. Vamos ouvir as palavras com clareza."
+    );
+    u.lang="pt-BR";
+    u.rate=Number(rate.value);
+    u.pitch=1;
+    u.volume=1;
+    const v=selectedVoice();
+    if(v){u.voice=v;u.lang=v.lang;}
+    speechSynthesis.speak(u);
+  },100);
+}
+
+function renderQuestion(){
+  answered=false;
+  const q=questions[current];
+  document.getElementById("progressText").textContent=`Questão ${current+1} de ${questions.length}`;
+  document.getElementById("scoreText").textContent=`Pontos: ${points}`;
+  document.getElementById("bar").style.width=`${(current/questions.length)*100}%`;
+  document.getElementById("targetWord").textContent=q.word;
+  document.getElementById("question").textContent=
+    `Qual das palavras abaixo tem a letra ${q.letter} com o mesmo som que em ${q.word}?`;
+
+  const options=document.getElementById("options");
+  options.innerHTML="";
+  q.options.forEach(word=>{
+    const b=document.createElement("button");
+    b.className="option";
+    b.textContent=word;
+    b.onclick=()=>answer(word,b);
+    options.appendChild(b);
+  });
+
+  document.getElementById("feedback").textContent="";
+  document.getElementById("nextBtn").classList.add("hidden");
+
+  // Fala automática somente a palavra-alvo, depois que a tela estabiliza.
+  setTimeout(()=>speak(q.word),250);
+}
+
+function answer(word,button){
+  if(answered) return;
+  answered=true;
+
+  const q=questions[current];
+  const buttons=[...document.querySelectorAll(".option")];
+  buttons.forEach(b=>b.disabled=true);
+
+  if(word===q.answer){
+    points++;
+    button.classList.add("correct");
+    document.getElementById("feedback").textContent="✅ Muito bem!";
+  }else{
+    button.classList.add("wrong");
+    const correct=buttons.find(b=>b.textContent===q.answer);
+    if(correct) correct.classList.add("correct");
+    document.getElementById("feedback").textContent=`❌ A resposta é ${q.answer}.`;
+  }
+
+  document.getElementById("scoreText").textContent=`Pontos: ${points}`;
+  document.getElementById("nextBtn").classList.remove("hidden");
+}
+
+function startGame(){
+  stopSpeaking();
+  current=0;
+  points=0;
+  document.getElementById("setup").classList.add("hidden");
+  document.getElementById("result").classList.add("hidden");
+  document.getElementById("game").classList.remove("hidden");
+  renderQuestion();
+}
+
+function nextQuestion(){
+  stopSpeaking();
+  if(current<questions.length-1){
+    current++;
+    renderQuestion();
+  }else{
+    document.getElementById("game").classList.add("hidden");
+    document.getElementById("result").classList.remove("hidden");
+    document.getElementById("resultText").textContent=
+      `Você acertou ${points} de ${questions.length} questões.`;
+  }
+}
+
+rate.addEventListener("input",()=>rateValue.textContent=Number(rate.value).toFixed(2));
+document.getElementById("testBtn").onclick=testVoice;
+document.getElementById("reloadBtn").onclick=loadVoices;
+document.getElementById("startBtn").onclick=startGame;
+document.getElementById("listenBtn").onclick=()=>speak(questions[current].word);
+document.getElementById("stopBtn").onclick=stopSpeaking;
+document.getElementById("nextBtn").onclick=nextQuestion;
+document.getElementById("restartBtn").onclick=()=>{
+  document.getElementById("result").classList.add("hidden");
+  document.getElementById("setup").classList.remove("hidden");
+};
+
+if("speechSynthesis" in window){
+  speechSynthesis.addEventListener("voiceschanged",loadVoices);
+  loadVoices();
+}else{
+  status.textContent="Seu navegador não oferece síntese de voz.";
+}
+</script>
+</body>
+</html>
